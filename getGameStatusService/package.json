@@ -1,0 +1,26 @@
+{
+  "name": "game_status_web_app",
+  "version": "1.0.0",
+  "description": "Node.js service to listen to game statuses",
+  "author": "Marissa",
+  "main": " getGameStatusService.ts",
+  "scripts": {
+    "start": "ts-node getGameStatusService.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@databases/pg": "^5.4.1",
+    "axios": "^1.1.3",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jest": "^29.2.2",
+    "pg": "^8.8.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-typescript": "^7.18.6",
+    "ts-node": "^10.9.1"
+  }
+}

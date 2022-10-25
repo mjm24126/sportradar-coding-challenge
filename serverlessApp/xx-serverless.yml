@@ -1,0 +1,76 @@
+service: nhl-game-stats-pipeline
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  stage: 'dev'
+  region: 'us-east-1'
+  profile: 'mjm'
+  apiGateway:
+    minimumCompressionSize: 1024
+    shouldStartNameWithService: true
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000'
+    REGION: 'us-east-1'
+    STAGE: 'dev'
+
+custom:
+   esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude: ['aws-sdk']
+    target: 'node14'
+    define: { 'require.resolve': undefined }
+    platform: 'node'
+    concurrency: 10
+
+functions:
+  hello:
+    handler: handler.hello
+  ingestInitialGameData:
+    handler: src.function.hello.handler
+  ingestGameGameData:
+    handler: src.function.hello.handler
+  queryByGame:
+    handler: src.function.hello.handler
+
+resources:
+  Resources:
+    NHLGameStatsMaster:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        DBInstanceIdentifier: "nhl-game-stats-db"
+        DBName: "nhlgamestats"
+        DBInstanceClass: "db.t3.medium"
+        AllocatedStorage: "20"
+        StorageType: "gp2"
+        Engine: "postgres"
+        EngineVersion: "13.7"
+        MasterUsername: "nhlgamestatsadmin"
+        MasterUserPassword: "hock3yStat$"
+
+  Outputs:
+    EndpointMaster:
+      Description: "Endpoint of the newly created RDS PostgreSQL master"
+      Value: !GetAtt NHLGameStatsMaster.Endpoint.Address
+    PortDB:
+      Description: "Port of the newly created RDS PostgreSQL master and replica"
+      Value: !GetAtt NHLGameStatsMaster.Endpoint.Port
+    JdbcConnString:
+      Description: "JDBC connection string of newly created RDS PostgreSQL master, w/o password"
+      Value: !Join
+        - ""
+        - - "jdbc:postgresql://"
+          - !GetAtt NHLGameStatsMaster.Endpoint.Address
+          - ":"
+          - !GetAtt NHLGameStatsMaster.Endpoint.Port
+          - "/"
+          - "nhlgamestats"
+          - "?user="
+          - "nhlgamestatsadmin"
+          - "&password="
+          - "hock3yStat$"
